@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Face Detection App</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #000000 0%, #133cf1 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1fbfff 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+
+
+        .main-content {
+            padding: 40px;
+        }
+
+        .mode-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .mode-btn {
+            flex: 1;
+            min-width: 200px;
+            padding: 15px 25px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .mode-btn:hover {
+            background: #667eea;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .mode-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .mode-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .controls {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .control-group input[type="file"],
+        .control-group input[type="range"] {
+            width: 100%;
+        }
+
+        .control-group input[type="range"] {
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+        }
+
+        .range-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .canvas-container {
+            position: relative;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .canvas-wrapper {
+            position: relative;
+            border: 3px solid #667eea;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        canvas {
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .stats {
+            background: #e7f3ff;
+            border-left: 4px solid #667eea;
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+        }
+
+        .stats h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .stat-item:last-child {
+            border-bottom: none;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #555;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .alert-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .alert-warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        footer {
+            background: #f8f9fa;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #ddd;
+        }
+
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8em;
+            }
+
+            .mode-btn {
+                min-width: 100%;
+            }
+
+            .main-content {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+        <header>
+            <h1>🎭 Face Detection App</h1>
+            <p>Deteksi wajah menggunakan OpenCV.js dengan Haar Cascade</p>
+        </header>
+
+        <div class="main-content">
+            <div class="mode-selector">
+                <button class="mode-btn active" data-mode="image" id="imageModeBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
+                    </svg>
+                    Gambar
+                </button>
+                <button class="mode-btn" data-mode="webcam" id="webcamModeBtn">
+                    <svg fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
+                    </svg>
+                    Webcam
+                </button>
+            </div>
+
+            <div class="alert alert-info">
+                <strong>ℹ️ Info:</strong> Aplikasi ini menggunakan Haar Cascade Classifier untuk mendeteksi wajah secara real-time di browser Anda. Semua proses dilakukan secara lokal, tidak ada data yang dikirim ke server.
+            </div>
+
+            <div class="controls">
+                <div id="imageControls">
+                    <div class="control-group">
+                        <label>📁 Pilih Gambar:</label>
+                        <input type="file" id="imageInput" accept="image/*">
+                    </div>
+                </div>
+
+                <div id="webcamControls" class="hidden">
+                    <button class="btn btn-primary" id="startWebcamBtn">📹 Mulai Webcam</button>
+                    <button class="btn btn-secondary hidden" id="stopWebcamBtn">⏹️ Stop Webcam</button>
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        🎚️ Scale Factor: 
+                        <span class="range-value" id="scaleFactorValue">1.1</span>
+                    </label>
+                    <input type="range" id="scaleFactor" min="1.05" max="1.5" step="0.05" value="1.1">
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        👥 Min Neighbors: 
+                        <span class="range-value" id="minNeighborsValue">5</span>
+                    </label>
+                    <input type="range" id="minNeighbors" min="1" max="10" step="1" value="5">
+                </div>
+
+                <div class="control-group">
+                    <label>
+                        📏 Min Size: 
+                        <span class="range-value" id="minSizeValue">30</span>
+                    </label>
+                    <input type="range" id="minSize" min="20" max="100" step="5" value="30">
+                </div>
+
+                <button class="btn btn-success" id="downloadBtn" disabled>💾 Download Hasil</button>
+            </div>
+
+            <div class="canvas-container">
+                <div class="canvas-wrapper">
+                    <canvas id="canvasOutput"></canvas>
+                </div>
+            </div>
+
+            <div class="stats hidden" id="statsPanel">
+                <h3>📊 Statistik Deteksi</h3>
+                <div class="stat-item">
+                    <span class="stat-label">Jumlah Wajah Terdeteksi:</span>
+                    <span class="stat-value" id="faceCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Waktu Proses:</span>
+                    <span class="stat-value" id="processTime">0 ms</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Ukuran Gambar:</span>
+                    <span class="stat-value" id="imageSize">-</span>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2025 Face Detection App | Powered by Abi Kamal</p>
+        </footer>
+    </div>
+
+    <script async src="https://docs.opencv.org/4.5.2/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+    
+    <script>
+        let cv;
+        let faceCascade;
+        let stream;
+        let isWebcamRunning = false;
+        let currentMode = 'image';
+
+        // Element references
+        const imageInput = document.getElementById('imageInput');
+        const canvasOutput = document.getElementById('canvasOutput');
+        const statsPanel = document.getElementById('statsPanel');
+        const faceCount = document.getElementById('faceCount');
+        const processTime = document.getElementById('processTime');
+        const imageSize = document.getElementById('imageSize');
+        const downloadBtn = document.getElementById('downloadBtn');
+        const startWebcamBtn = document.getElementById('startWebcamBtn');
+        const stopWebcamBtn = document.getElementById('stopWebcamBtn');
+        const imageControls = document.getElementById('imageControls');
+        const webcamControls = document.getElementById('webcamControls');
+
+        // Control values
+        const scaleFactorInput = document.getElementById('scaleFactor');
+        const minNeighborsInput = document.getElementById('minNeighbors');
+        const minSizeInput = document.getElementById('minSize');
+        const scaleFactorValue = document.getElementById('scaleFactorValue');
+        const minNeighborsValue = document.getElementById('minNeighborsValue');
+        const minSizeValue = document.getElementById('minSizeValue');
+
+        // Mode buttons
+        const imageModeBtn = document.getElementById('imageModeBtn');
+        const webcamModeBtn = document.getElementById('webcamModeBtn');
+
+        // Update control values
+        scaleFactorInput.addEventListener('input', (e) => {
+            scaleFactorValue.textContent = e.target.value;
+        });
+
+        minNeighborsInput.addEventListener('input', (e) => {
+            minNeighborsValue.textContent = e.target.value;
+        });
+
+        minSizeInput.addEventListener('input', (e) => {
+            minSizeValue.textContent = e.target.value;
+        });
+
+        // Mode switching
+        imageModeBtn.addEventListener('click', () => switchMode('image'));
+        webcamModeBtn.addEventListener('click', () => switchMode('webcam'));
+
+        function switchMode(mode) {
+            currentMode = mode;
+            
+            // Update button states
+            imageModeBtn.classList.toggle('active', mode === 'image');
+            webcamModeBtn.classList.toggle('active', mode === 'webcam');
+            
+            // Update controls visibility
+            imageControls.classList.toggle('hidden', mode !== 'image');
+            webcamControls.classList.toggle('hidden', mode !== 'webcam');
+            
+            // Stop webcam if switching away
+            if (mode === 'image' && isWebcamRunning) {
+                stopWebcam();
+            }
+        }
+
+        function onOpenCvReady() {
+            cv = window.cv;
+            loadHaarCascade();
+        }
+
+        function loadHaarCascade() {
+            const utils = new cv.Utils();
+            const faceCascadeFile = 'haarcascade_frontalface_default.xml';
+            const url = 'https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/' + faceCascadeFile;
+
+            utils.createFileFromUrl(faceCascadeFile, url, () => {
+                faceCascade = new cv.CascadeClassifier();
+                faceCascade.load(faceCascadeFile);
+                console.log('✓ OpenCV.js dan Haar Cascade berhasil dimuat!');
+            });
+        }
+
+        imageInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                
+                reader.onload = (event) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        detectFacesFromImage(img);
+                    };
+                    img.src = event.target.result;
+                };
+                
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function detectFacesFromImage(img) {
+            const startTime = performance.now();
+            
+            // Setup canvas
+            canvasOutput.width = img.width;
+            canvasOutput.height = img.height;
+            const ctx = canvasOutput.getContext('2d');
+            ctx.drawImage(img, 0, 0);
+            
+            // Convert to OpenCV format
+            const src = cv.imread(canvasOutput);
+            const gray = new cv.Mat();
+            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+            
+            // Detect faces
+            const faces = new cv.RectVector();
+            const scaleFactor = parseFloat(scaleFactorInput.value);
+            const minNeighbors = parseInt(minNeighborsInput.value);
+            const minSizeVal = parseInt(minSizeInput.value);
+            
+            faceCascade.detectMultiScale(
+                gray,
+                faces,
+                scaleFactor,
+                minNeighbors,
+                0,
+                new cv.Size(minSizeVal, minSizeVal),
+                new cv.Size(0, 0)
+            );
+            
+            // Draw rectangles
+            for (let i = 0; i < faces.size(); i++) {
+                const face = faces.get(i);
+                const point1 = new cv.Point(face.x, face.y);
+                const point2 = new cv.Point(face.x + face.width, face.y + face.height);
+                
+                cv.rectangle(src, point1, point2, [0, 255, 0, 255], 3);
+                
+                // Add label
+                const label = `Face ${i + 1}`;
+                const fontFace = cv.FONT_HERSHEY_SIMPLEX;
+                const fontScale = 0.8;
+                const thickness = 2;
+                const textSize = cv.getTextSize(label, fontFace, fontScale, thickness);
+                
+                // Background for text
+                cv.rectangle(
+                    src,
+                    new cv.Point(face.x, face.y - textSize.height - 10),
+                    new cv.Point(face.x + textSize.width + 10, face.y),
+                    [0, 255, 0, 255],
+                    -1
+                );
+                
+                // Text
+                cv.putText(
+                    src,
+                    label,
+                    new cv.Point(face.x + 5, face.y - 5),
+                    fontFace,
+                    fontScale,
+                    [0, 0, 0, 255],
+                    thickness
+                );
+            }
+            
+            // Display result
+            cv.imshow('canvasOutput', src);
+            
+            // Update stats
+            const endTime = performance.now();
+            const processingTime = (endTime - startTime).toFixed(2);
+            
+            faceCount.textContent = faces.size();
+            processTime.textContent = `${processingTime} ms`;
+            imageSize.textContent = `${img.width} x ${img.height}`;
+            
+            statsPanel.classList.remove('hidden');
+            downloadBtn.disabled = false;
+            
+            // Cleanup
+            src.delete();
+            gray.delete();
+            faces.delete();
+        }
+
+        startWebcamBtn.addEventListener('click', startWebcam);
+        stopWebcamBtn.addEventListener('click', stopWebcam);
+
+        async function startWebcam() {
+            try {
+                stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: { width: 640, height: 480 } 
+                });
+                
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                video.play();
+                
+                video.onloadedmetadata = () => {
+                    canvasOutput.width = video.videoWidth;
+                    canvasOutput.height = video.videoHeight;
+                    isWebcamRunning = true;
+                    
+                    startWebcamBtn.classList.add('hidden');
+                    stopWebcamBtn.classList.remove('hidden');
+                    downloadBtn.disabled = true;
+                    
+                    processWebcamFrame(video);
+                };
+            } catch (err) {
+                alert('Error mengakses webcam: ' + err.message);
+            }
+        }
+
+        function processWebcamFrame(video) {
+            if (!isWebcamRunning) return;
+            
+            const startTime = performance.now();
+            
+            const ctx = canvasOutput.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvasOutput.width, canvasOutput.height);
+            
+            const src = cv.imread(canvasOutput);
+            const gray = new cv.Mat();
+            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
+            
+            const faces = new cv.RectVector();
+            const scaleFactor = parseFloat(scaleFactorInput.value);
+            const minNeighbors = parseInt(minNeighborsInput.value);
+            const minSizeVal = parseInt(minSizeInput.value);
+            
+            faceCascade.detectMultiScale(
+                gray,
+                faces,
+                scaleFactor,
+                minNeighbors,
+                0,
+                new cv.Size(minSizeVal, minSizeVal),
+                new cv.Size(0, 0)
+            );
+            
+            for (let i = 0; i < faces.size(); i++) {
+                const face = faces.get(i);
+                const point1 = new cv.Point(face.x, face.y);
+                const point2 = new cv.Point(face.x + face.width, face.y + face.height);
+                
+                cv.rectangle(src, point1, point2, [0, 255, 0, 255], 3);
+                
+                const label = `Face ${i + 1}`;
+                cv.putText(
+                    src,
+                    label,
+                    new cv.Point(face.x, face.y - 10),
+                    cv.FONT_HERSHEY_SIMPLEX,
+                    0.7,
+                    [0, 255, 0, 255],
+                    2
+                );
+            }
+            
+            cv.imshow('canvasOutput', src);
+            
+            const endTime = performance.now();
+            const processingTime = (endTime - startTime).toFixed(2);
+            
+            faceCount.textContent = faces.size();
+            processTime.textContent = `${processingTime} ms`;
+            imageSize.textContent = `${video.videoWidth} x ${video.videoHeight}`;
+            
+            statsPanel.classList.remove('hidden');
+            
+            src.delete();
+            gray.delete();
+            faces.delete();
+            
+            requestAnimationFrame(() => processWebcamFrame(video));
+        }
+
+        function stopWebcam() {
+            isWebcamRunning = false;
+            
+            if (stream) {
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+            
+            startWebcamBtn.classList.remove('hidden');
+            stopWebcamBtn.classList.add('hidden');
+            
+            const ctx = canvasOutput.getContext('2d');
+            ctx.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
+            statsPanel.classList.add('hidden');
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'face-detection-result.png';
+            link.href = canvasOutput.toDataURL();
+            link.click();
+        });
+    </script>
+</body>
+</html>
