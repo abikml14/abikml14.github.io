@@ -1,680 +1,2196 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Face Detection App</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProcureX — Purchasing Module</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0d14;
+    --surface: #111622;
+    --surface2: #1a2035;
+    --border: #1f2d4a;
+    --accent: #2563eb;
+    --accent2: #38bdf8;
+    --gold: #f59e0b;
+    --green: #10b981;
+    --red: #ef4444;
+    --orange: #f97316;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --glow: rgba(37,99,235,0.25);
+  }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #000000 0%, #133cf1 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-        header {
-            background: linear-gradient(135deg, #1fbfff 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
+  /* SIDEBAR */
+  .sidebar {
+    position: fixed; left: 0; top: 0; bottom: 0;
+    width: 240px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    z-index: 100;
+    transition: transform 0.3s;
+  }
 
-        header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
+  .sidebar-logo {
+    padding: 24px 20px 20px;
+    border-bottom: 1px solid var(--border);
+  }
 
-        header p {
-            font-size: 1.1em;
-            opacity: 0.9;
-        }
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(135deg, #2563eb, #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
+  .logo-sub {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 2px;
+  }
 
+  .nav-group {
+    padding: 16px 12px 8px;
+  }
 
-        .main-content {
-            padding: 40px;
-        }
+  .nav-label {
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 0 8px;
+    margin-bottom: 6px;
+  }
 
-        .mode-selector {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-        }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    color: var(--muted);
+    transition: all 0.2s;
+    margin-bottom: 2px;
+    font-size: 13px;
+    font-weight: 500;
+    position: relative;
+  }
 
-        .mode-btn {
-            flex: 1;
-            min-width: 200px;
-            padding: 15px 25px;
-            border: 2px solid #667eea;
-            background: white;
-            color: #667eea;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 1em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+  .nav-item:hover { background: var(--surface2); color: var(--text); }
+  .nav-item.active {
+    background: rgba(37,99,235,0.15);
+    color: var(--accent2);
+  }
+  .nav-item.active::before {
+    content: '';
+    position: absolute; left: 0; top: 20%; bottom: 20%;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 0 3px 3px 0;
+  }
 
-        .mode-btn:hover {
-            background: #667eea;
-            color: white;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
+  .nav-icon { font-size: 16px; width: 20px; text-align: center; }
 
-        .mode-btn.active {
-            background: #667eea;
-            color: white;
-        }
+  .nav-badge {
+    margin-left: auto;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 20px;
+    font-weight: 600;
+  }
 
-        .mode-btn svg {
-            width: 24px;
-            height: 24px;
-        }
+  .sidebar-bottom {
+    margin-top: auto;
+    padding: 16px 12px;
+    border-top: 1px solid var(--border);
+  }
 
-        .controls {
-            background: #f8f9fa;
-            padding: 25px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-        }
+  .user-card {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .user-card:hover { background: var(--surface2); }
 
-        .control-group {
-            margin-bottom: 20px;
-        }
+  .avatar {
+    width: 32px; height: 32px;
+    background: linear-gradient(135deg, #2563eb, #38bdf8);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff;
+    flex-shrink: 0;
+  }
 
-        .control-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: #333;
-        }
+  .user-name { font-size: 13px; font-weight: 500; }
+  .user-role { font-size: 11px; color: var(--muted); }
 
-        .control-group input[type="file"],
-        .control-group input[type="range"] {
-            width: 100%;
-        }
+  /* MAIN */
+  .main {
+    margin-left: 240px;
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+  }
 
-        .control-group input[type="range"] {
-            height: 6px;
-            border-radius: 3px;
-            background: #ddd;
-            outline: none;
-        }
+  /* TOPBAR */
+  .topbar {
+    height: 60px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center;
+    padding: 0 28px;
+    gap: 16px;
+    position: sticky; top: 0;
+    background: rgba(10,13,20,0.85);
+    backdrop-filter: blur(12px);
+    z-index: 50;
+  }
 
-        .range-value {
-            display: inline-block;
-            margin-left: 10px;
-            font-weight: bold;
-            color: #667eea;
-        }
+  .page-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 700;
+  }
 
-        .btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
+  .breadcrumb {
+    display: flex; align-items: center; gap: 6px;
+    color: var(--muted);
+    font-size: 12px;
+    margin-left: 4px;
+  }
 
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
+  .topbar-right {
+    margin-left: auto;
+    display: flex; align-items: center; gap: 12px;
+  }
 
-        .btn-primary:hover {
-            background: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
+  .icon-btn {
+    width: 36px; height: 36px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    color: var(--muted);
+    font-size: 16px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--text); }
 
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
+  .notif-dot {
+    position: absolute; top: 6px; right: 6px;
+    width: 7px; height: 7px;
+    background: var(--red);
+    border-radius: 50%;
+    border: 2px solid var(--bg);
+  }
 
-        .btn-secondary:hover {
-            background: #5a6268;
-        }
+  /* CONTENT */
+  .content {
+    padding: 28px;
+    flex: 1;
+  }
 
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
+  /* PAGE SECTIONS */
+  .page-section { display: none; }
+  .page-section.active { display: block; }
 
-        .btn-success:hover {
-            background: #218838;
-        }
+  /* STATS GRID */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
 
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: default;
+  }
 
-        .canvas-container {
-            position: relative;
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+  .stat-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
 
-        .canvas-wrapper {
-            position: relative;
-            border: 3px solid #667eea;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
+  .stat-card::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(37,99,235,0.06), transparent);
+    pointer-events: none;
+  }
 
-        canvas {
-            display: block;
-            max-width: 100%;
-            height: auto;
-        }
+  .stat-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
 
-        .stats {
-            background: #e7f3ff;
-            border-left: 4px solid #667eea;
-            padding: 20px;
-            margin-top: 30px;
-            border-radius: 8px;
-        }
+  .stat-icon.blue { background: rgba(37,99,235,0.15); }
+  .stat-icon.gold { background: rgba(245,158,11,0.15); }
+  .stat-icon.green { background: rgba(16,185,129,0.15); }
+  .stat-icon.red { background: rgba(239,68,68,0.15); }
 
-        .stats h3 {
-            color: #667eea;
-            margin-bottom: 15px;
-        }
+  .stat-val {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
 
-        .stat-item {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #ddd;
-        }
+  .stat-label { color: var(--muted); font-size: 12px; }
 
-        .stat-item:last-child {
-            border-bottom: none;
-        }
+  .stat-change {
+    display: inline-flex; align-items: center; gap: 3px;
+    font-size: 11px;
+    margin-top: 8px;
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  .stat-change.up { background: rgba(16,185,129,0.15); color: var(--green); }
+  .stat-change.down { background: rgba(239,68,68,0.15); color: var(--red); }
 
-        .stat-label {
-            font-weight: 600;
-            color: #555;
-        }
+  /* GRID LAYOUT */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .grid-3-1 { display: grid; grid-template-columns: 3fr 1fr; gap: 16px; margin-bottom: 24px; }
 
-        .stat-value {
-            font-weight: bold;
-            color: #667eea;
-        }
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
 
-        .hidden {
-            display: none !important;
-        }
+  .card-header {
+    padding: 18px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
 
-        .alert {
-            padding: 15px 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
+  .card-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    flex: 1;
+  }
 
-        .alert-info {
-            background: #d1ecf1;
-            color: #0c5460;
-            border-left: 4px solid #17a2b8;
-        }
+  .card-body { padding: 20px; }
 
-        .alert-warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #ffc107;
-        }
+  /* BUTTONS */
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
 
-        footer {
-            background: #f8f9fa;
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            border-top: 1px solid #ddd;
-        }
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #1d4ed8; box-shadow: 0 0 20px var(--glow); }
 
-        @media (max-width: 768px) {
-            header h1 {
-                font-size: 1.8em;
-            }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
 
-            .mode-btn {
-                min-width: 100%;
-            }
+  .btn-success {
+    background: rgba(16,185,129,0.15);
+    color: var(--green);
+    border: 1px solid rgba(16,185,129,0.3);
+  }
+  .btn-success:hover { background: rgba(16,185,129,0.25); }
 
-            .main-content {
-                padding: 20px;
-            }
-        }
-    </style>
+  .btn-danger {
+    background: rgba(239,68,68,0.15);
+    color: var(--red);
+    border: 1px solid rgba(239,68,68,0.3);
+  }
+  .btn-danger:hover { background: rgba(239,68,68,0.25); }
+
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+
+  /* TABLE */
+  .table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--muted);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 14px;
+    border-bottom: 1px solid rgba(31,45,74,0.5);
+    vertical-align: middle;
+    font-size: 13px;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* BADGE */
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .badge-pending { background: rgba(245,158,11,0.15); color: var(--gold); }
+  .badge-approved { background: rgba(16,185,129,0.15); color: var(--green); }
+  .badge-rejected { background: rgba(239,68,68,0.15); color: var(--red); }
+  .badge-draft { background: rgba(100,116,139,0.15); color: var(--muted); }
+  .badge-ordered { background: rgba(37,99,235,0.15); color: var(--accent2); }
+  .badge-received { background: rgba(16,185,129,0.2); color: var(--green); }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 5px;
+    background: var(--surface2);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1s ease;
+  }
+
+  /* SEARCH + FILTER */
+  .toolbar {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .search-box {
+    display: flex; align-items: center; gap: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    flex: 1; max-width: 280px;
+  }
+
+  .search-box input {
+    background: none; border: none; outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    width: 100%;
+  }
+
+  .search-box input::placeholder { color: var(--muted); }
+
+  select, .select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    cursor: pointer;
+  }
+
+  /* MODAL */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    width: 90%; max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    transform: translateY(20px);
+    transition: transform 0.3s;
+  }
+
+  .modal-overlay.open .modal { transform: translateY(0); }
+
+  .modal-header {
+    padding: 22px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .modal-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 17px;
+    font-weight: 700;
+    flex: 1;
+  }
+
+  .modal-body { padding: 24px; }
+
+  .modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    display: flex; justify-content: flex-end; gap: 10px;
+  }
+
+  /* FORM */
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 14px; }
+  .form-row.single { grid-template-columns: 1fr; }
+
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+
+  .form-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .form-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    width: 100%;
+  }
+
+  .form-input:focus { border-color: var(--accent); }
+
+  textarea.form-input { min-height: 80px; resize: vertical; }
+
+  /* CHART BAR */
+  .chart-bars {
+    display: flex; align-items: flex-end; gap: 8px;
+    height: 120px;
+    padding: 0 4px;
+  }
+
+  .chart-bar-group {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 4px;
+  }
+
+  .chart-bar {
+    width: 100%;
+    border-radius: 4px 4px 0 0;
+    transition: height 1s ease, opacity 0.2s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .chart-bar:hover { opacity: 0.85; }
+
+  .chart-bar-label {
+    font-size: 10px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* DONUT */
+  .donut-wrap {
+    display: flex; align-items: center; gap: 20px;
+  }
+
+  .donut-legend { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px;
+  }
+
+  .legend-dot {
+    width: 10px; height: 10px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .legend-val { margin-left: auto; font-weight: 600; font-size: 13px; }
+
+  /* TIMELINE */
+  .timeline { display: flex; flex-direction: column; gap: 0; }
+
+  .timeline-item {
+    display: flex; gap: 14px;
+    padding-bottom: 20px;
+    position: relative;
+  }
+
+  .timeline-item:last-child { padding-bottom: 0; }
+
+  .timeline-line {
+    display: flex; flex-direction: column; align-items: center;
+    width: 32px; flex-shrink: 0;
+  }
+
+  .timeline-dot {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .timeline-connector {
+    width: 1px;
+    flex: 1;
+    background: var(--border);
+    margin-top: 4px;
+  }
+
+  .timeline-item:last-child .timeline-connector { display: none; }
+
+  .timeline-content { padding-top: 5px; }
+  .timeline-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+  .timeline-time { font-size: 11px; color: var(--muted); }
+
+  /* SUPPLIER CARDS */
+  .supplier-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+  .supplier-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s, transform 0.2s;
+    cursor: pointer;
+  }
+
+  .supplier-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+
+  .supplier-name { font-weight: 600; margin-bottom: 4px; font-size: 13px; }
+  .supplier-meta { color: var(--muted); font-size: 11px; margin-bottom: 10px; }
+
+  .supplier-rating { display: flex; align-items: center; gap: 4px; font-size: 12px; }
+  .stars { color: var(--gold); letter-spacing: -1px; }
+
+  /* SCROLL BAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--surface); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* TOASTS */
+  .toast-container {
+    position: fixed; bottom: 24px; right: 24px;
+    z-index: 300;
+    display: flex; flex-direction: column; gap: 8px;
+  }
+
+  .toast {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    min-width: 260px;
+    transform: translateX(120%);
+    transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.4);
+  }
+
+  .toast.show { transform: translateX(0); }
+  .toast-icon { font-size: 18px; }
+  .toast-text { font-size: 13px; flex: 1; }
+
+  /* ITEMS TABLE IN MODAL */
+  .items-table { border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-bottom: 12px; }
+  .items-table table td, .items-table table th { padding: 8px 12px; }
+
+  /* LOADING PULSE */
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+  .pulse { animation: pulse 2s infinite; }
+
+  /* ANIMATIONS */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up { animation: fadeUp 0.4s ease both; }
+
+  .fade-up:nth-child(1) { animation-delay: 0s; }
+  .fade-up:nth-child(2) { animation-delay: 0.05s; }
+  .fade-up:nth-child(3) { animation-delay: 0.1s; }
+  .fade-up:nth-child(4) { animation-delay: 0.15s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 1100px) {
+    .stats-grid { grid-template-columns: repeat(2,1fr); }
+    .grid-2, .grid-3-1 { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 768px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  /* INPUT NUMBER */
+  input[type=number]::-webkit-inner-spin-button { opacity: 1; }
+
+  /* SPECIAL GRADIENT STAT */
+  .stat-val.blue { background: linear-gradient(135deg, #2563eb, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-val.gold { background: linear-gradient(135deg, #f59e0b, #fde68a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-val.green { background: linear-gradient(135deg, #10b981, #6ee7b7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-val.red { background: linear-gradient(135deg, #ef4444, #fca5a5); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty-state .empty-icon { font-size: 40px; margin-bottom: 10px; }
+  .empty-state p { font-size: 13px; }
+
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .gap-2 { gap: 8px; }
+  .ml-auto { margin-left: auto; }
+  .text-muted { color: var(--muted); }
+  .text-green { color: var(--green); }
+  .text-red { color: var(--red); }
+  .text-gold { color: var(--gold); }
+  .text-blue { color: var(--accent2); }
+  .font-bold { font-weight: 700; }
+  .text-sm { font-size: 12px; }
+  .mb-4 { margin-bottom: 16px; }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    margin-right: 4px;
+  }
+
+  .po-number { font-family: 'Syne', sans-serif; font-size: 12px; font-weight: 600; color: var(--accent2); }
+
+  .approval-steps {
+    display: flex; align-items: center; gap: 0;
+    margin-bottom: 16px;
+  }
+
+  .approval-step {
+    flex: 1;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 6px;
+    position: relative;
+  }
+
+  .approval-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 50%; right: -50%;
+    top: 15px;
+    height: 1px;
+    background: var(--border);
+    z-index: 0;
+  }
+
+  .approval-step.done::after { background: var(--accent); }
+
+  .step-circle {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    z-index: 1;
+    font-weight: 600;
+  }
+
+  .approval-step.done .step-circle { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .approval-step.current .step-circle { border-color: var(--accent2); color: var(--accent2); }
+
+  .step-label { font-size: 10px; color: var(--muted); text-align: center; white-space: nowrap; }
+</style>
 </head>
 <body>
 
-        <header>
-            <h1>🎭 Face Detection App</h1>
-            <p>Deteksi wajah menggunakan OpenCV.js dengan Haar Cascade</p>
-        </header>
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">ProcureX</div>
+    <div class="logo-sub">Purchasing Module</div>
+  </div>
 
-        <div class="main-content">
-            <div class="mode-selector">
-                <button class="mode-btn active" data-mode="image" id="imageModeBtn">
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd"/>
-                    </svg>
-                    Gambar
-                </button>
-                <button class="mode-btn" data-mode="webcam" id="webcamModeBtn">
-                    <svg fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z"/>
-                    </svg>
-                    Webcam
-                </button>
-            </div>
-
-            <div class="alert alert-info">
-                <strong>ℹ️ Info:</strong> Aplikasi ini menggunakan Haar Cascade Classifier untuk mendeteksi wajah secara real-time di browser Anda. Semua proses dilakukan secara lokal, tidak ada data yang dikirim ke server.
-            </div>
-
-            <div class="controls">
-                <div id="imageControls">
-                    <div class="control-group">
-                        <label>📁 Pilih Gambar:</label>
-                        <input type="file" id="imageInput" accept="image/*">
-                    </div>
-                </div>
-
-                <div id="webcamControls" class="hidden">
-                    <button class="btn btn-primary" id="startWebcamBtn">📹 Mulai Webcam</button>
-                    <button class="btn btn-secondary hidden" id="stopWebcamBtn">⏹️ Stop Webcam</button>
-                </div>
-
-                <div class="control-group">
-                    <label>
-                        🎚️ Scale Factor: 
-                        <span class="range-value" id="scaleFactorValue">1.1</span>
-                    </label>
-                    <input type="range" id="scaleFactor" min="1.05" max="1.5" step="0.05" value="1.1">
-                </div>
-
-                <div class="control-group">
-                    <label>
-                        👥 Min Neighbors: 
-                        <span class="range-value" id="minNeighborsValue">5</span>
-                    </label>
-                    <input type="range" id="minNeighbors" min="1" max="10" step="1" value="5">
-                </div>
-
-                <div class="control-group">
-                    <label>
-                        📏 Min Size: 
-                        <span class="range-value" id="minSizeValue">30</span>
-                    </label>
-                    <input type="range" id="minSize" min="20" max="100" step="5" value="30">
-                </div>
-
-                <button class="btn btn-success" id="downloadBtn" disabled>💾 Download Hasil</button>
-            </div>
-
-            <div class="canvas-container">
-                <div class="canvas-wrapper">
-                    <canvas id="canvasOutput"></canvas>
-                </div>
-            </div>
-
-            <div class="stats hidden" id="statsPanel">
-                <h3>📊 Statistik Deteksi</h3>
-                <div class="stat-item">
-                    <span class="stat-label">Jumlah Wajah Terdeteksi:</span>
-                    <span class="stat-value" id="faceCount">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Waktu Proses:</span>
-                    <span class="stat-value" id="processTime">0 ms</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-label">Ukuran Gambar:</span>
-                    <span class="stat-value" id="imageSize">-</span>
-                </div>
-            </div>
-        </div>
-
-        <footer>
-            <p>© 2025 Face Detection App | Powered by Abi Kamal</p>
-        </footer>
+  <nav>
+    <div class="nav-group">
+      <div class="nav-label">Overview</div>
+      <div class="nav-item active" onclick="navigate('dashboard', this)">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
     </div>
 
-    <script async src="https://docs.opencv.org/4.5.2/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
-    
-    <script>
-        let cv;
-        let faceCascade;
-        let stream;
-        let isWebcamRunning = false;
-        let currentMode = 'image';
+    <div class="nav-group">
+      <div class="nav-label">Procurement</div>
+      <div class="nav-item" onclick="navigate('pr', this)">
+        <span class="nav-icon">📝</span> Purchase Request
+        <span class="nav-badge" id="pr-badge">3</span>
+      </div>
+      <div class="nav-item" onclick="navigate('po', this)">
+        <span class="nav-icon">🛒</span> Purchase Order
+      </div>
+      <div class="nav-item" onclick="navigate('rfq', this)">
+        <span class="nav-icon">📋</span> RFQ / Quotation
+      </div>
+      <div class="nav-item" onclick="navigate('receiving', this)">
+        <span class="nav-icon">📦</span> Goods Receiving
+      </div>
+    </div>
 
-        // Element references
-        const imageInput = document.getElementById('imageInput');
-        const canvasOutput = document.getElementById('canvasOutput');
-        const statsPanel = document.getElementById('statsPanel');
-        const faceCount = document.getElementById('faceCount');
-        const processTime = document.getElementById('processTime');
-        const imageSize = document.getElementById('imageSize');
-        const downloadBtn = document.getElementById('downloadBtn');
-        const startWebcamBtn = document.getElementById('startWebcamBtn');
-        const stopWebcamBtn = document.getElementById('stopWebcamBtn');
-        const imageControls = document.getElementById('imageControls');
-        const webcamControls = document.getElementById('webcamControls');
+    <div class="nav-group">
+      <div class="nav-label">Master Data</div>
+      <div class="nav-item" onclick="navigate('supplier', this)">
+        <span class="nav-icon">🏭</span> Supplier
+      </div>
+      <div class="nav-item" onclick="navigate('item', this)">
+        <span class="nav-icon">🗂️</span> Item Catalog
+      </div>
+    </div>
 
-        // Control values
-        const scaleFactorInput = document.getElementById('scaleFactor');
-        const minNeighborsInput = document.getElementById('minNeighbors');
-        const minSizeInput = document.getElementById('minSize');
-        const scaleFactorValue = document.getElementById('scaleFactorValue');
-        const minNeighborsValue = document.getElementById('minNeighborsValue');
-        const minSizeValue = document.getElementById('minSizeValue');
+    <div class="nav-group">
+      <div class="nav-label">Finance</div>
+      <div class="nav-item" onclick="navigate('invoice', this)">
+        <span class="nav-icon">🧾</span> Invoice & Payment
+      </div>
+      <div class="nav-item" onclick="navigate('budget', this)">
+        <span class="nav-icon">💰</span> Budget Control
+      </div>
+    </div>
+  </nav>
 
-        // Mode buttons
-        const imageModeBtn = document.getElementById('imageModeBtn');
-        const webcamModeBtn = document.getElementById('webcamModeBtn');
+  <div class="sidebar-bottom">
+    <div class="user-card">
+      <div class="avatar">AS</div>
+      <div>
+        <div class="user-name">Abi Kamal</div>
+        <div class="user-role">Procurement Manager</div>
+      </div>
+    </div>
+  </div>
+</aside>
 
-        // Update control values
-        scaleFactorInput.addEventListener('input', (e) => {
-            scaleFactorValue.textContent = e.target.value;
-        });
+<!-- MAIN -->
+<div class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="page-title">Dashboard</div>
+      <div class="breadcrumb">
+        <span>Home</span>
+        <span>›</span>
+        <span id="breadcrumb-current" style="color:var(--text)">Dashboard</span>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="icon-btn" title="Notifikasi">🔔<span class="notif-dot"></span></div>
+      <div class="icon-btn" title="Pengaturan">⚙️</div>
+      <div class="avatar" style="cursor:pointer;">AK</div>
+    </div>
+  </div>
 
-        minNeighborsInput.addEventListener('input', (e) => {
-            minNeighborsValue.textContent = e.target.value;
-        });
+  <!-- CONTENT -->
+  <div class="content">
 
-        minSizeInput.addEventListener('input', (e) => {
-            minSizeValue.textContent = e.target.value;
-        });
+    <!-- ===== DASHBOARD ===== -->
+    <div class="page-section active" id="page-dashboard">
 
-        // Mode switching
-        imageModeBtn.addEventListener('click', () => switchMode('image'));
-        webcamModeBtn.addEventListener('click', () => switchMode('webcam'));
+      <div class="stats-grid">
+        <div class="stat-card fade-up">
+          <div class="stat-icon blue">🛒</div>
+          <div class="stat-val blue">142</div>
+          <div class="stat-label">Total Purchase Order</div>
+          <div class="stat-change up">↑ 12.4% vs bulan lalu</div>
+        </div>
+        <div class="stat-card fade-up">
+          <div class="stat-icon gold">⏳</div>
+          <div class="stat-val gold">23</div>
+          <div class="stat-label">Menunggu Approval</div>
+          <div class="stat-change down">↓ 3 dari minggu lalu</div>
+        </div>
+        <div class="stat-card fade-up">
+          <div class="stat-icon green">💳</div>
+          <div class="stat-val green">Rp 4.2M</div>
+          <div class="stat-label">Total Pengeluaran (Bulan Ini)</div>
+          <div class="stat-change up">↑ 8.1% vs bulan lalu</div>
+        </div>
+        <div class="stat-card fade-up">
+          <div class="stat-icon red">⚠️</div>
+          <div class="stat-val red">7</div>
+          <div class="stat-label">PO Terlambat</div>
+          <div class="stat-change down">↓ 2 dari minggu lalu</div>
+        </div>
+      </div>
 
-        function switchMode(mode) {
-            currentMode = mode;
-            
-            // Update button states
-            imageModeBtn.classList.toggle('active', mode === 'image');
-            webcamModeBtn.classList.toggle('active', mode === 'webcam');
-            
-            // Update controls visibility
-            imageControls.classList.toggle('hidden', mode !== 'image');
-            webcamControls.classList.toggle('hidden', mode !== 'webcam');
-            
-            // Stop webcam if switching away
-            if (mode === 'image' && isWebcamRunning) {
-                stopWebcam();
-            }
-        }
+      <div class="grid-2">
+        <!-- SPENDING CHART -->
+        <div class="card fade-up">
+          <div class="card-header">
+            <div class="card-title">📈 Pengeluaran Bulanan</div>
+            <select onchange="updateChart(this.value)" style="font-size:12px;padding:6px 10px;">
+              <option value="2025">2025</option>
+              <option value="2024">2024</option>
+            </select>
+          </div>
+          <div class="card-body">
+            <div class="chart-bars" id="spending-chart"></div>
+            <div style="display:flex;justify-content:space-between;margin-top:4px;">
+              <span class="text-sm text-muted">Jan</span>
+              <span class="text-sm text-muted">Feb</span>
+              <span class="text-sm text-muted">Mar</span>
+              <span class="text-sm text-muted">Apr</span>
+              <span class="text-sm text-muted">Mei</span>
+              <span class="text-sm text-muted">Jun</span>
+              <span class="text-sm text-muted">Jul</span>
+              <span class="text-sm text-muted">Agu</span>
+            </div>
+            <div class="divider"></div>
+            <div class="flex items-center gap-2">
+              <div style="width:10px;height:10px;border-radius:3px;background:var(--accent);"></div>
+              <span class="text-sm text-muted">Pengeluaran Aktual</span>
+              <div style="width:10px;height:10px;border-radius:3px;background:var(--surface2);border:1px solid var(--border);margin-left:12px;"></div>
+              <span class="text-sm text-muted">Target Budget</span>
+            </div>
+          </div>
+        </div>
 
-        function onOpenCvReady() {
-            cv = window.cv;
-            loadHaarCascade();
-        }
+        <!-- CATEGORY PIE -->
+        <div class="card fade-up">
+          <div class="card-header">
+            <div class="card-title">🗂️ Kategori Pembelian</div>
+          </div>
+          <div class="card-body">
+            <div class="donut-wrap">
+              <svg width="120" height="120" viewBox="0 0 120 120">
+                <circle cx="60" cy="60" r="45" fill="none" stroke="var(--surface2)" stroke-width="18"/>
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#2563eb" stroke-width="18"
+                  stroke-dasharray="113 170" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#f59e0b" stroke-width="18"
+                  stroke-dasharray="64 219" stroke-dashoffset="-113" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#10b981" stroke-width="18"
+                  stroke-dasharray="51 232" stroke-dashoffset="-177" transform="rotate(-90 60 60)"/>
+                <circle cx="60" cy="60" r="45" fill="none" stroke="#f97316" stroke-width="18"
+                  stroke-dasharray="55 228" stroke-dashoffset="-228" transform="rotate(-90 60 60)"/>
+                <text x="60" y="56" text-anchor="middle" fill="var(--text)" font-family="Syne" font-weight="700" font-size="14">142</text>
+                <text x="60" y="70" text-anchor="middle" fill="var(--muted)" font-size="9">PO Total</text>
+              </svg>
+              <div class="donut-legend">
+                <div class="legend-item"><div class="legend-dot" style="background:#2563eb;"></div>Elektronik<span class="legend-val">40%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f59e0b;"></div>Alat Tulis<span class="legend-val">23%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:#10b981;"></div>Furnitur<span class="legend-val">18%</span></div>
+                <div class="legend-item"><div class="legend-dot" style="background:#f97316;"></div>Lainnya<span class="legend-val">19%</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        function loadHaarCascade() {
-            const utils = new cv.Utils();
-            const faceCascadeFile = 'haarcascade_frontalface_default.xml';
-            const url = 'https://raw.githubusercontent.com/opencv/opencv/master/data/haarcascades/' + faceCascadeFile;
+      <div class="grid-3-1">
+        <!-- RECENT PO -->
+        <div class="card fade-up">
+          <div class="card-header">
+            <div class="card-title">🧾 Purchase Order Terbaru</div>
+            <button class="btn btn-ghost btn-sm" onclick="navigate('po', document.querySelector('[onclick*=\"po\"]'))">Lihat Semua</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>No. PO</th>
+                  <th>Supplier</th>
+                  <th>Jumlah</th>
+                  <th>Status</th>
+                  <th>Tanggal</th>
+                </tr>
+              </thead>
+              <tbody id="recent-po-table"></tbody>
+            </table>
+          </div>
+        </div>
 
-            utils.createFileFromUrl(faceCascadeFile, url, () => {
-                faceCascade = new cv.CascadeClassifier();
-                faceCascade.load(faceCascadeFile);
-                console.log('✓ OpenCV.js dan Haar Cascade berhasil dimuat!');
-            });
-        }
+        <!-- ACTIVITY -->
+        <div class="card fade-up">
+          <div class="card-header">
+            <div class="card-title">🕐 Aktivitas</div>
+          </div>
+          <div class="card-body">
+            <div class="timeline" id="activity-timeline"></div>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        imageInput.addEventListener('change', (e) => {
-            if (e.target.files.length > 0) {
-                const file = e.target.files[0];
-                const reader = new FileReader();
-                
-                reader.onload = (event) => {
-                    const img = new Image();
-                    img.onload = () => {
-                        detectFacesFromImage(img);
-                    };
-                    img.src = event.target.result;
-                };
-                
-                reader.readAsDataURL(file);
-            }
-        });
+    <!-- ===== PURCHASE REQUEST ===== -->
+    <div class="page-section" id="page-pr">
+      <div class="toolbar">
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" placeholder="Cari PR..." oninput="filterTable('pr-table', this.value)">
+        </div>
+        <select onchange="filterByStatus('pr-table', this.value)">
+          <option value="">Semua Status</option>
+          <option value="Pending">Pending</option>
+          <option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option>
+          <option value="Draft">Draft</option>
+        </select>
+        <button class="btn btn-primary ml-auto" onclick="openModal('modal-pr')">
+          ＋ Buat PR Baru
+        </button>
+      </div>
 
-        function detectFacesFromImage(img) {
-            const startTime = performance.now();
-            
-            // Setup canvas
-            canvasOutput.width = img.width;
-            canvasOutput.height = img.height;
-            const ctx = canvasOutput.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            
-            // Convert to OpenCV format
-            const src = cv.imread(canvasOutput);
-            const gray = new cv.Mat();
-            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-            
-            // Detect faces
-            const faces = new cv.RectVector();
-            const scaleFactor = parseFloat(scaleFactorInput.value);
-            const minNeighbors = parseInt(minNeighborsInput.value);
-            const minSizeVal = parseInt(minSizeInput.value);
-            
-            faceCascade.detectMultiScale(
-                gray,
-                faces,
-                scaleFactor,
-                minNeighbors,
-                0,
-                new cv.Size(minSizeVal, minSizeVal),
-                new cv.Size(0, 0)
-            );
-            
-            // Draw rectangles
-            for (let i = 0; i < faces.size(); i++) {
-                const face = faces.get(i);
-                const point1 = new cv.Point(face.x, face.y);
-                const point2 = new cv.Point(face.x + face.width, face.y + face.height);
-                
-                cv.rectangle(src, point1, point2, [0, 255, 0, 255], 3);
-                
-                // Add label
-                const label = `Face ${i + 1}`;
-                const fontFace = cv.FONT_HERSHEY_SIMPLEX;
-                const fontScale = 0.8;
-                const thickness = 2;
-                const textSize = cv.getTextSize(label, fontFace, fontScale, thickness);
-                
-                // Background for text
-                cv.rectangle(
-                    src,
-                    new cv.Point(face.x, face.y - textSize.height - 10),
-                    new cv.Point(face.x + textSize.width + 10, face.y),
-                    [0, 255, 0, 255],
-                    -1
-                );
-                
-                // Text
-                cv.putText(
-                    src,
-                    label,
-                    new cv.Point(face.x + 5, face.y - 5),
-                    fontFace,
-                    fontScale,
-                    [0, 0, 0, 255],
-                    thickness
-                );
-            }
-            
-            // Display result
-            cv.imshow('canvasOutput', src);
-            
-            // Update stats
-            const endTime = performance.now();
-            const processingTime = (endTime - startTime).toFixed(2);
-            
-            faceCount.textContent = faces.size();
-            processTime.textContent = `${processingTime} ms`;
-            imageSize.textContent = `${img.width} x ${img.height}`;
-            
-            statsPanel.classList.remove('hidden');
-            downloadBtn.disabled = false;
-            
-            // Cleanup
-            src.delete();
-            gray.delete();
-            faces.delete();
-        }
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📝 Daftar Purchase Request</div>
+          <span class="text-sm text-muted" id="pr-count">Memuat...</span>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>No. PR</th>
+                <th>Pemohon</th>
+                <th>Departemen</th>
+                <th>Item</th>
+                <th>Total Est.</th>
+                <th>Prioritas</th>
+                <th>Status</th>
+                <th>Tanggal</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="pr-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        startWebcamBtn.addEventListener('click', startWebcam);
-        stopWebcamBtn.addEventListener('click', stopWebcam);
+    <!-- ===== PURCHASE ORDER ===== -->
+    <div class="page-section" id="page-po">
+      <div class="toolbar">
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" placeholder="Cari PO..." oninput="filterTable('po-table', this.value)">
+        </div>
+        <select>
+          <option value="">Semua Status</option>
+          <option>Draft</option>
+          <option>Ordered</option>
+          <option>Received</option>
+        </select>
+        <button class="btn btn-primary ml-auto" onclick="openModal('modal-po')">
+          ＋ Buat PO Baru
+        </button>
+      </div>
 
-        async function startWebcam() {
-            try {
-                stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { width: 640, height: 480 } 
-                });
-                
-                const video = document.createElement('video');
-                video.srcObject = stream;
-                video.play();
-                
-                video.onloadedmetadata = () => {
-                    canvasOutput.width = video.videoWidth;
-                    canvasOutput.height = video.videoHeight;
-                    isWebcamRunning = true;
-                    
-                    startWebcamBtn.classList.add('hidden');
-                    stopWebcamBtn.classList.remove('hidden');
-                    downloadBtn.disabled = true;
-                    
-                    processWebcamFrame(video);
-                };
-            } catch (err) {
-                alert('Error mengakses webcam: ' + err.message);
-            }
-        }
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🛒 Daftar Purchase Order</div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>No. PO</th>
+                <th>Supplier</th>
+                <th>Ref. PR</th>
+                <th>Item</th>
+                <th>Total</th>
+                <th>Exp. Delivery</th>
+                <th>Status</th>
+                <th>Progress</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="po-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        function processWebcamFrame(video) {
-            if (!isWebcamRunning) return;
-            
-            const startTime = performance.now();
-            
-            const ctx = canvasOutput.getContext('2d');
-            ctx.drawImage(video, 0, 0, canvasOutput.width, canvasOutput.height);
-            
-            const src = cv.imread(canvasOutput);
-            const gray = new cv.Mat();
-            cv.cvtColor(src, gray, cv.COLOR_RGBA2GRAY);
-            
-            const faces = new cv.RectVector();
-            const scaleFactor = parseFloat(scaleFactorInput.value);
-            const minNeighbors = parseInt(minNeighborsInput.value);
-            const minSizeVal = parseInt(minSizeInput.value);
-            
-            faceCascade.detectMultiScale(
-                gray,
-                faces,
-                scaleFactor,
-                minNeighbors,
-                0,
-                new cv.Size(minSizeVal, minSizeVal),
-                new cv.Size(0, 0)
-            );
-            
-            for (let i = 0; i < faces.size(); i++) {
-                const face = faces.get(i);
-                const point1 = new cv.Point(face.x, face.y);
-                const point2 = new cv.Point(face.x + face.width, face.y + face.height);
-                
-                cv.rectangle(src, point1, point2, [0, 255, 0, 255], 3);
-                
-                const label = `Face ${i + 1}`;
-                cv.putText(
-                    src,
-                    label,
-                    new cv.Point(face.x, face.y - 10),
-                    cv.FONT_HERSHEY_SIMPLEX,
-                    0.7,
-                    [0, 255, 0, 255],
-                    2
-                );
-            }
-            
-            cv.imshow('canvasOutput', src);
-            
-            const endTime = performance.now();
-            const processingTime = (endTime - startTime).toFixed(2);
-            
-            faceCount.textContent = faces.size();
-            processTime.textContent = `${processingTime} ms`;
-            imageSize.textContent = `${video.videoWidth} x ${video.videoHeight}`;
-            
-            statsPanel.classList.remove('hidden');
-            
-            src.delete();
-            gray.delete();
-            faces.delete();
-            
-            requestAnimationFrame(() => processWebcamFrame(video));
-        }
+    <!-- ===== RFQ ===== -->
+    <div class="page-section" id="page-rfq">
+      <div class="toolbar">
+        <button class="btn btn-primary ml-auto" onclick="openModal('modal-rfq')">
+          ＋ Buat RFQ Baru
+        </button>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📋 Request for Quotation</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>No. RFQ</th>
+                <th>Supplier</th>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Harga Penawaran</th>
+                <th>Deadline</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="rfq-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        function stopWebcam() {
-            isWebcamRunning = false;
-            
-            if (stream) {
-                stream.getTracks().forEach(track => track.stop());
-                stream = null;
-            }
-            
-            startWebcamBtn.classList.remove('hidden');
-            stopWebcamBtn.classList.add('hidden');
-            
-            const ctx = canvasOutput.getContext('2d');
-            ctx.clearRect(0, 0, canvasOutput.width, canvasOutput.height);
-            statsPanel.classList.add('hidden');
-        }
+    <!-- ===== GOODS RECEIVING ===== -->
+    <div class="page-section" id="page-receiving">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📦 Penerimaan Barang</div>
+          <button class="btn btn-primary" onclick="openModal('modal-receiving')">＋ Input Penerimaan</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>No. GRN</th>
+                <th>No. PO</th>
+                <th>Supplier</th>
+                <th>Item Diterima</th>
+                <th>Qty Dipesan</th>
+                <th>Qty Diterima</th>
+                <th>Kondisi</th>
+                <th>Tgl Terima</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="grn-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-        downloadBtn.addEventListener('click', () => {
-            const link = document.createElement('a');
-            link.download = 'face-detection-result.png';
-            link.href = canvasOutput.toDataURL();
-            link.click();
-        });
-    </script>
+    <!-- ===== SUPPLIER ===== -->
+    <div class="page-section" id="page-supplier">
+      <div class="toolbar">
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" placeholder="Cari supplier...">
+        </div>
+        <button class="btn btn-primary ml-auto" onclick="openModal('modal-supplier')">＋ Tambah Supplier</button>
+      </div>
+      <div class="supplier-grid" id="supplier-grid"></div>
+    </div>
+
+    <!-- ===== ITEM CATALOG ===== -->
+    <div class="page-section" id="page-item">
+      <div class="toolbar">
+        <div class="search-box">
+          <span>🔍</span>
+          <input type="text" placeholder="Cari item..." oninput="filterTable('item-table', this.value)">
+        </div>
+        <select>
+          <option>Semua Kategori</option>
+          <option>Elektronik</option>
+          <option>Alat Tulis</option>
+          <option>Furnitur</option>
+          <option>IT Equipment</option>
+        </select>
+        <button class="btn btn-primary ml-auto" onclick="openModal('modal-item')">＋ Tambah Item</button>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">🗂️ Katalog Item</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Kode Item</th>
+                <th>Nama Item</th>
+                <th>Kategori</th>
+                <th>Satuan</th>
+                <th>Harga Est.</th>
+                <th>Stok Min.</th>
+                <th>Lead Time</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="item-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== INVOICE ===== -->
+    <div class="page-section" id="page-invoice">
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">🧾 Invoice & Pembayaran</div>
+          <button class="btn btn-primary" onclick="openModal('modal-invoice')">＋ Input Invoice</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>No. Invoice</th>
+                <th>Supplier</th>
+                <th>Ref. PO</th>
+                <th>Jumlah</th>
+                <th>Jatuh Tempo</th>
+                <th>Status Bayar</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="invoice-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== BUDGET ===== -->
+    <div class="page-section" id="page-budget">
+      <div class="stats-grid">
+        <div class="stat-card fade-up">
+          <div class="stat-icon blue">💼</div>
+          <div class="stat-val blue">Rp 50M</div>
+          <div class="stat-label">Total Budget Tahunan</div>
+        </div>
+        <div class="stat-card fade-up">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-val green">Rp 32.4M</div>
+          <div class="stat-label">Terpakai</div>
+          <div class="stat-change up">64.8% dari budget</div>
+        </div>
+        <div class="stat-card fade-up">
+          <div class="stat-icon gold">💰</div>
+          <div class="stat-val gold">Rp 17.6M</div>
+          <div class="stat-label">Sisa Budget</div>
+        </div>
+        <div class="stat-card fade-up">
+          <div class="stat-icon red">⚠️</div>
+          <div class="stat-val red">2</div>
+          <div class="stat-label">Dept. Over Budget</div>
+        </div>
+      </div>
+
+      <div class="card fade-up">
+        <div class="card-header"><div class="card-title">💰 Budget per Departemen</div></div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Departemen</th>
+                <th>Budget</th>
+                <th>Terpakai</th>
+                <th>Sisa</th>
+                <th>%</th>
+                <th>Progres</th>
+              </tr>
+            </thead>
+            <tbody id="budget-table"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<!-- ===== MODALS ===== -->
+
+<!-- PR Modal -->
+<div class="modal-overlay" id="modal-pr">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📝 Buat Purchase Request</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-pr')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="approval-steps">
+        <div class="approval-step current"><div class="step-circle">1</div><div class="step-label">Buat PR</div></div>
+        <div class="approval-step"><div class="step-circle">2</div><div class="step-label">Review Mgr</div></div>
+        <div class="approval-step"><div class="step-circle">3</div><div class="step-label">Approval</div></div>
+        <div class="approval-step"><div class="step-circle">4</div><div class="step-label">PO</div></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Pemohon</label>
+          <input class="form-input" value="Abi Kamal" readonly>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Departemen</label>
+          <select class="form-input">
+            <option>IT</option><option>Finance</option><option>Operations</option><option>HR</option><option>Marketing</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tanggal Dibutuhkan</label>
+          <input type="date" class="form-input" id="pr-date-needed">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Prioritas</label>
+          <select class="form-input">
+            <option>Normal</option><option>Tinggi</option><option>Urgent</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Keterangan</label>
+          <textarea class="form-input" placeholder="Deskripsi kebutuhan..."></textarea>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="flex items-center gap-2 mb-4">
+        <strong style="font-size:13px;">Detail Item</strong>
+        <button class="btn btn-ghost btn-sm ml-auto" onclick="addPRItem()">＋ Tambah Item</button>
+      </div>
+      <div class="items-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Nama Item</th><th>Qty</th><th>Satuan</th><th>Est. Harga</th><th>Total</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="pr-items">
+            <tr>
+              <td><input class="form-input" placeholder="Nama item..." oninput="calcPRTotal()"></td>
+              <td><input type="number" class="form-input" value="1" min="1" style="width:60px" oninput="calcPRTotal()"></td>
+              <td><select class="form-input" style="width:80px"><option>Unit</option><option>Pcs</option><option>Box</option><option>Set</option></select></td>
+              <td><input type="number" class="form-input" placeholder="0" oninput="calcPRTotal()"></td>
+              <td class="item-total text-green font-bold">Rp 0</td>
+              <td><button class="btn btn-danger btn-sm" onclick="removePRItem(this)">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="flex items-center" style="justify-content:flex-end;gap:8px;margin-top:8px;">
+        <span class="text-muted text-sm">Total Estimasi:</span>
+        <span class="font-bold text-green" id="pr-grand-total" style="font-size:16px;font-family:'Syne',sans-serif;">Rp 0</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-pr')">Batal</button>
+      <button class="btn btn-ghost" onclick="savePR('draft')">Simpan Draft</button>
+      <button class="btn btn-primary" onclick="savePR('submit')">Submit PR</button>
+    </div>
+  </div>
+</div>
+
+<!-- PO Modal -->
+<div class="modal-overlay" id="modal-po">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🛒 Buat Purchase Order</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-po')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Ref. Purchase Request</label>
+          <select class="form-input"><option>PR-2025-001</option><option>PR-2025-002</option><option>PR-2025-003</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Supplier</label>
+          <select class="form-input"><option>PT. Maju Bersama</option><option>CV. Karya Mandiri</option><option>PT. Tech Solusi</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tanggal Order</label>
+          <input type="date" class="form-input" id="po-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Exp. Delivery</label>
+          <input type="date" class="form-input" id="po-delivery">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Syarat Pembayaran</label>
+          <select class="form-input"><option>NET 30</option><option>NET 14</option><option>COD</option><option>Advance 50%</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Alamat Pengiriman</label>
+          <input class="form-input" placeholder="Jl. Sudirman No. 1...">
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="flex items-center gap-2 mb-4">
+        <strong style="font-size:13px;">Item PO</strong>
+        <button class="btn btn-ghost btn-sm ml-auto" onclick="addPOItem()">＋ Item</button>
+      </div>
+      <div class="items-table">
+        <table>
+          <thead>
+            <tr><th>Item</th><th>Qty</th><th>Satuan</th><th>Harga</th><th>Diskon</th><th>Total</th><th></th></tr>
+          </thead>
+          <tbody id="po-items">
+            <tr>
+              <td><input class="form-input" placeholder="Nama item..."></td>
+              <td><input type="number" class="form-input" value="1" style="width:60px"></td>
+              <td><select class="form-input" style="width:80px"><option>Pcs</option><option>Unit</option><option>Box</option></select></td>
+              <td><input type="number" class="form-input" placeholder="0" oninput="calcPOTotal()"></td>
+              <td><input type="number" class="form-input" placeholder="0%" style="width:70px" oninput="calcPOTotal()"></td>
+              <td class="text-green font-bold">Rp 0</td>
+              <td><button class="btn btn-danger btn-sm" onclick="this.closest('tr').remove()">✕</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="text-align:right;margin-top:8px;">
+        <span class="text-muted text-sm">Subtotal: </span><span class="font-bold" id="po-subtotal">Rp 0</span><br>
+        <span class="text-muted text-sm">PPN 11%: </span><span class="font-bold" id="po-tax">Rp 0</span><br>
+        <div class="divider"></div>
+        <span class="text-muted">Total: </span><span class="font-bold text-green" id="po-grand-total" style="font-size:18px;font-family:'Syne',sans-serif;">Rp 0</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-po')">Batal</button>
+      <button class="btn btn-primary" onclick="savePO()">Buat PO</button>
+    </div>
+  </div>
+</div>
+
+<!-- Supplier Modal -->
+<div class="modal-overlay" id="modal-supplier">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🏭 Tambah Supplier</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-supplier')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Nama Perusahaan</label>
+          <input class="form-input" placeholder="PT. ...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kode Supplier</label>
+          <input class="form-input" placeholder="SUP-XXX">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">PIC / Kontak</label>
+          <input class="form-input" placeholder="Nama PIC">
+        </div>
+        <div class="form-group">
+          <label class="form-label">No. Telepon</label>
+          <input class="form-input" placeholder="08xx-xxxx-xxxx">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-input" placeholder="supplier@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">NPWP</label>
+          <input class="form-input" placeholder="00.000.000.0-000.000">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Alamat</label>
+          <textarea class="form-input" placeholder="Alamat lengkap..."></textarea>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kategori Produk</label>
+          <select class="form-input"><option>Elektronik</option><option>Alat Tulis</option><option>Furnitur</option><option>IT Equipment</option><option>Lainnya</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Syarat Pembayaran Default</label>
+          <select class="form-input"><option>NET 30</option><option>NET 14</option><option>COD</option><option>Advance</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-supplier')">Batal</button>
+      <button class="btn btn-primary" onclick="saveSupplier()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- RFQ Modal -->
+<div class="modal-overlay" id="modal-rfq">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📋 Buat RFQ Baru</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-rfq')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Supplier</label>
+          <select class="form-input"><option>PT. Maju Bersama</option><option>CV. Karya Mandiri</option><option>PT. Tech Solusi</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Deadline Respons</label>
+          <input type="date" class="form-input">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Item yang Diminta</label>
+          <textarea class="form-input" placeholder="Daftar item dan spesifikasi..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-rfq')">Batal</button>
+      <button class="btn btn-primary" onclick="saveRFQ()">Kirim RFQ</button>
+    </div>
+  </div>
+</div>
+
+<!-- Item Modal -->
+<div class="modal-overlay" id="modal-item">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🗂️ Tambah Item Katalog</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-item')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kode Item</label>
+          <input class="form-input" placeholder="ITM-XXX">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Nama Item</label>
+          <input class="form-input" placeholder="Nama item...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Kategori</label>
+          <select class="form-input"><option>Elektronik</option><option>Alat Tulis</option><option>Furnitur</option><option>IT Equipment</option></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Satuan</label>
+          <select class="form-input"><option>Unit</option><option>Pcs</option><option>Box</option><option>Set</option><option>Rim</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Harga Estimasi (Rp)</label>
+          <input type="number" class="form-input" placeholder="0">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stok Minimum</label>
+          <input type="number" class="form-input" placeholder="0">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Lead Time (hari)</label>
+          <input type="number" class="form-input" placeholder="7">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-item')">Batal</button>
+      <button class="btn btn-primary" onclick="saveItem()">Simpan Item</button>
+    </div>
+  </div>
+</div>
+
+<!-- Receiving Modal -->
+<div class="modal-overlay" id="modal-receiving">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">📦 Input Penerimaan Barang</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-receiving')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">No. PO</label>
+          <select class="form-input" id="grn-po-ref">
+            <option>PO-2025-001</option><option>PO-2025-002</option><option>PO-2025-003</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Tanggal Terima</label>
+          <input type="date" class="form-input" id="grn-date">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">No. Surat Jalan</label>
+          <input class="form-input" placeholder="SJ-XXXX">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kondisi Barang</label>
+          <select class="form-input"><option>Baik</option><option>Parsial</option><option>Rusak</option></select>
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Catatan</label>
+          <textarea class="form-input" placeholder="Catatan penerimaan..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-receiving')">Batal</button>
+      <button class="btn btn-primary" onclick="saveGRN()">Simpan GRN</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice Modal -->
+<div class="modal-overlay" id="modal-invoice">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">🧾 Input Invoice</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-invoice')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">No. Invoice</label>
+          <input class="form-input" placeholder="INV-XXXX">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ref. PO</label>
+          <select class="form-input"><option>PO-2025-001</option><option>PO-2025-002</option></select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Tanggal Invoice</label>
+          <input type="date" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Jatuh Tempo</label>
+          <input type="date" class="form-input">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">Jumlah (Rp)</label>
+          <input type="number" class="form-input" placeholder="0">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-invoice')">Batal</button>
+      <button class="btn btn-primary" onclick="saveInvoice()">Simpan Invoice</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ============== DATA ==============
+const prData = [
+  { id:'PR-2025-001', pemohon:'Budi Hartono', dept:'IT', item:'Laptop Dell XPS 15', total:'Rp 28.500.000', prioritas:'Urgent', status:'Pending', tgl:'12 Jan 2025' },
+  { id:'PR-2025-002', pemohon:'Siti Rahayu', dept:'Finance', item:'Printer Canon + Tinta', total:'Rp 4.200.000', prioritas:'Normal', status:'Approved', tgl:'10 Jan 2025' },
+  { id:'PR-2025-003', pemohon:'Rudi Setiawan', dept:'Operations', item:'Kursi Ergonomis (10 unit)', total:'Rp 15.000.000', prioritas:'Normal', status:'Draft', tgl:'08 Jan 2025' },
+  { id:'PR-2025-004', pemohon:'Dewi Susanti', dept:'HR', item:'Kertas A4 (50 Rim)', total:'Rp 3.750.000', prioritas:'Tinggi', status:'Approved', tgl:'05 Jan 2025' },
+  { id:'PR-2025-005', pemohon:'Agus Pratama', dept:'Marketing', item:'Proyektor Epson', total:'Rp 9.800.000', prioritas:'Normal', status:'Rejected', tgl:'03 Jan 2025' },
+  { id:'PR-2025-006', pemohon:'Maya Indah', dept:'IT', item:'Mouse & Keyboard Wireless', total:'Rp 2.400.000', prioritas:'Normal', status:'Pending', tgl:'01 Jan 2025' },
+];
+
+const poData = [
+  { id:'PO-2025-001', supplier:'PT. Maju Bersama', refPR:'PR-2025-002', item:'Printer Canon + Tinta', total:'Rp 4.620.000', delivery:'20 Jan 2025', status:'Ordered', progress:65 },
+  { id:'PO-2025-002', supplier:'CV. Karya Mandiri', refPR:'PR-2025-004', item:'Kertas A4 (50 Rim)', total:'Rp 4.162.500', delivery:'15 Jan 2025', status:'Received', progress:100 },
+  { id:'PO-2025-003', supplier:'PT. Tech Solusi', refPR:'PR-2025-001', item:'Laptop Dell XPS 15', total:'Rp 31.635.000', delivery:'28 Jan 2025', status:'Draft', progress:10 },
+  { id:'PO-2025-004', supplier:'PT. Furniture Indo', refPR:'-', item:'Meja Kantor (5 unit)', total:'Rp 12.500.000', delivery:'25 Jan 2025', status:'Ordered', progress:40 },
+];
+
+const rfqData = [
+  { id:'RFQ-2025-001', supplier:'PT. Maju Bersama', item:'AC Split 1.5 PK', qty:10, harga:'Rp 4.200.000', deadline:'18 Jan 2025', status:'Pending' },
+  { id:'RFQ-2025-002', supplier:'CV. Karya Mandiri', item:'Meja Rapat', qty:2, harga:'Rp 8.500.000', deadline:'20 Jan 2025', status:'Approved' },
+  { id:'RFQ-2025-003', supplier:'PT. Tech Solusi', item:'Server Rack', qty:1, harga:'-', deadline:'22 Jan 2025', status:'Pending' },
+];
+
+const grnData = [
+  { id:'GRN-2025-001', po:'PO-2025-002', supplier:'CV. Karya Mandiri', item:'Kertas A4', qtyOrder:50, qtyReceived:50, kondisi:'Baik', tgl:'14 Jan 2025' },
+  { id:'GRN-2025-002', po:'PO-2025-001', supplier:'PT. Maju Bersama', item:'Printer Canon', qtyOrder:1, qtyReceived:1, kondisi:'Baik', tgl:'19 Jan 2025' },
+];
+
+const supplierData = [
+  { name:'PT. Maju Bersama', kode:'SUP-001', kategori:'Elektronik', kontak:'Bpk. Hendra', telp:'021-5551234', rating:4.5, po:12 },
+  { name:'CV. Karya Mandiri', kode:'SUP-002', kategori:'Alat Tulis', kontak:'Ibu Ratna', telp:'021-5554321', rating:4.0, po:8 },
+  { name:'PT. Tech Solusi', kode:'SUP-003', kategori:'IT Equipment', kontak:'Bpk. Yusuf', telp:'021-5559876', rating:4.8, po:25 },
+  { name:'PT. Furniture Indo', kode:'SUP-004', kategori:'Furnitur', kontak:'Ibu Lina', telp:'021-5552468', rating:3.9, po:5 },
+  { name:'CV. Office World', kode:'SUP-005', kategori:'Alat Tulis', kontak:'Bpk. Dono', telp:'021-5553690', rating:4.2, po:15 },
+  { name:'PT. Global Supply', kode:'SUP-006', kategori:'Lainnya', kontak:'Bpk. Ferry', telp:'021-5557891', rating:4.1, po:7 },
+];
+
+const itemData = [
+  { kode:'ITM-001', nama:'Laptop Dell XPS 15', kategori:'Elektronik', satuan:'Unit', harga:'Rp 28.500.000', stokMin:5, leadTime:'14 hari' },
+  { kode:'ITM-002', nama:'Kertas HVS A4 80gr', kategori:'Alat Tulis', satuan:'Rim', harga:'Rp 75.000', stokMin:50, leadTime:'3 hari' },
+  { kode:'ITM-003', nama:'Kursi Ergonomis', kategori:'Furnitur', satuan:'Unit', harga:'Rp 1.500.000', stokMin:10, leadTime:'7 hari' },
+  { kode:'ITM-004', nama:'Printer Canon G3770', kategori:'Elektronik', satuan:'Unit', harga:'Rp 3.200.000', stokMin:3, leadTime:'5 hari' },
+  { kode:'ITM-005', nama:'Toner Cartridge', kategori:'Alat Tulis', satuan:'Pcs', harga:'Rp 450.000', stokMin:20, leadTime:'3 hari' },
+  { kode:'ITM-006', nama:'Proyektor Epson EB', kategori:'Elektronik', satuan:'Unit', harga:'Rp 9.800.000', stokMin:2, leadTime:'10 hari' },
+];
+
+const invoiceData = [
+  { id:'INV-2025-001', supplier:'CV. Karya Mandiri', refPO:'PO-2025-002', jumlah:'Rp 4.162.500', jatuhTempo:'28 Jan 2025', status:'Lunas' },
+  { id:'INV-2025-002', supplier:'PT. Maju Bersama', refPO:'PO-2025-001', jumlah:'Rp 4.620.000', jatuhTempo:'15 Feb 2025', status:'Belum Bayar' },
+  { id:'INV-2025-003', supplier:'PT. Tech Solusi', refPO:'PO-2025-003', jumlah:'Rp 31.635.000', jatuhTempo:'28 Feb 2025', status:'Sebagian' },
+];
+
+const budgetData = [
+  { dept:'IT', budget:15000000, terpakai:12400000 },
+  { dept:'Operations', budget:20000000, terpakai:21000000 },
+  { dept:'Finance', budget:8000000, terpakai:4200000 },
+  { dept:'HR', budget:5000000, terpakai:3750000 },
+  { dept:'Marketing', budget:7000000, terpakai:5800000 },
+  { dept:'General', budget:10000000, terpakai:8200000 },
+];
+
+const activityData = [
+  { icon:'✅', bg:'rgba(16,185,129,0.15)', color:'var(--green)', title:'PR-2025-004 disetujui Manager', time:'2 jam lalu' },
+  { icon:'🛒', bg:'rgba(37,99,235,0.15)', color:'var(--accent2)', title:'PO-2025-004 dibuat oleh Ahmad S.', time:'4 jam lalu' },
+  { icon:'📦', bg:'rgba(245,158,11,0.15)', color:'var(--gold)', title:'GRN-2025-002 diterima dengan baik', time:'Kemarin, 14:30' },
+  { icon:'❌', bg:'rgba(239,68,68,0.15)', color:'var(--red)', title:'PR-2025-005 ditolak — anggaran kurang', time:'Kemarin, 09:15' },
+  { icon:'📋', bg:'rgba(100,116,139,0.15)', color:'var(--muted)', title:'RFQ-2025-003 dikirim ke PT. Tech Solusi', time:'2 hari lalu' },
+];
+
+const spendingData = [320,280,450,380,520,480,410,390];
+const targetData   = [400,400,400,400,400,400,400,400];
+
+// ============== NAVIGATION ==============
+function navigate(page, el) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  if (el) el.classList.add('active');
+
+  const titles = {
+    dashboard:'Dashboard', pr:'Purchase Request', po:'Purchase Order',
+    rfq:'RFQ / Quotation', receiving:'Goods Receiving', supplier:'Supplier',
+    item:'Item Katalog', invoice:'Invoice & Pembayaran', budget:'Budget Control'
+  };
+  document.getElementById('page-title').textContent = titles[page] || page;
+  document.getElementById('breadcrumb-current').textContent = titles[page] || page;
+
+  renderPage(page);
+}
+
+function renderPage(page) {
+  if (page === 'dashboard') { renderRecentPO(); renderActivity(); renderChart(); }
+  if (page === 'pr') renderPR();
+  if (page === 'po') renderPO();
+  if (page === 'rfq') renderRFQ();
+  if (page === 'receiving') renderGRN();
+  if (page === 'supplier') renderSupplier();
+  if (page === 'item') renderItem();
+  if (page === 'invoice') renderInvoice();
+  if (page === 'budget') renderBudget();
+}
+
+// ============== RENDER FUNCTIONS ==============
+function renderRecentPO() {
+  const tbody = document.getElementById('recent-po-table');
+  tbody.innerHTML = poData.slice(0,4).map(p => `
+    <tr>
+      <td><span class="po-number">${p.id}</span></td>
+      <td>${p.supplier}</td>
+      <td class="font-bold">${p.total}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td class="text-muted">${p.delivery}</td>
+    </tr>
+  `).join('');
+}
+
+function renderActivity() {
+  const el = document.getElementById('activity-timeline');
+  el.innerHTML = activityData.map(a => `
+    <div class="timeline-item">
+      <div class="timeline-line">
+        <div class="timeline-dot" style="background:${a.bg};color:${a.color}">${a.icon}</div>
+        <div class="timeline-connector"></div>
+      </div>
+      <div class="timeline-content">
+        <div class="timeline-title">${a.title}</div>
+        <div class="timeline-time">${a.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderChart() {
+  const max = Math.max(...spendingData, ...targetData);
+  const el = document.getElementById('spending-chart');
+  el.innerHTML = spendingData.map((v,i) => `
+    <div class="chart-bar-group">
+      <div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;gap:3px;width:100%">
+        <div class="chart-bar" style="background:rgba(37,99,235,0.7);height:${(v/max)*100}%" title="Rp ${v*100}rb"></div>
+        <div class="chart-bar" style="background:var(--surface2);height:${(targetData[i]/max)*100}%;border:1px solid var(--border)" title="Target: Rp ${targetData[i]*100}rb"></div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateChart(year) {
+  const multiplier = year === '2024' ? 0.85 : 1;
+  spendingData.forEach((_,i) => spendingData[i] = Math.round(spendingData[i] * (0.9 + Math.random()*0.2)));
+  renderChart();
+}
+
+function renderPR() {
+  const tbody = document.getElementById('pr-table');
+  tbody.innerHTML = prData.map(p => `
+    <tr>
+      <td><span class="po-number">${p.id}</span></td>
+      <td>${p.pemohon}</td>
+      <td><span class="tag">${p.dept}</span></td>
+      <td>${p.item}</td>
+      <td class="font-bold">${p.total}</td>
+      <td>${priorityBadge(p.prioritas)}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td class="text-muted">${p.tgl}</td>
+      <td>
+        <div class="flex gap-2">
+          ${p.status==='Pending' ? `<button class="btn btn-success btn-sm" onclick="approvePR('${p.id}')">✓ Setujui</button>` : ''}
+          <button class="btn btn-ghost btn-sm" onclick="viewDetail('${p.id}')">👁</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+  document.getElementById('pr-count').textContent = `${prData.length} PR ditemukan`;
+}
+
+function renderPO() {
+  const tbody = document.getElementById('po-table');
+  tbody.innerHTML = poData.map(p => `
+    <tr>
+      <td><span class="po-number">${p.id}</span></td>
+      <td>${p.supplier}</td>
+      <td class="text-muted text-sm">${p.refPR}</td>
+      <td>${p.item}</td>
+      <td class="font-bold">${p.total}</td>
+      <td class="text-muted">${p.delivery}</td>
+      <td>${statusBadge(p.status)}</td>
+      <td>
+        <div style="width:100px;">
+          <div class="progress-bar"><div class="progress-fill" style="width:${p.progress}%;background:${p.progress===100?'var(--green)':p.progress>50?'var(--accent)':'var(--gold)'}"></div></div>
+          <div class="text-sm text-muted" style="margin-top:3px;">${p.progress}%</div>
+        </div>
+      </td>
+      <td><button class="btn btn-ghost btn-sm">👁 Detail</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderRFQ() {
+  const tbody = document.getElementById('rfq-table');
+  tbody.innerHTML = rfqData.map(r => `
+    <tr>
+      <td><span class="po-number">${r.id}</span></td>
+      <td>${r.supplier}</td>
+      <td>${r.item}</td>
+      <td>${r.qty}</td>
+      <td class="font-bold">${r.harga}</td>
+      <td class="text-muted">${r.deadline}</td>
+      <td>${statusBadge(r.status)}</td>
+      <td>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm">✏️ Edit</button>
+          <button class="btn btn-success btn-sm">→ PO</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderGRN() {
+  const tbody = document.getElementById('grn-table');
+  tbody.innerHTML = grnData.map(g => `
+    <tr>
+      <td><span class="po-number">${g.id}</span></td>
+      <td class="text-blue">${g.po}</td>
+      <td>${g.supplier}</td>
+      <td>${g.item}</td>
+      <td class="text-center">${g.qtyOrder}</td>
+      <td class="text-center font-bold text-green">${g.qtyReceived}</td>
+      <td><span class="badge ${g.kondisi==='Baik'?'badge-approved':'badge-pending'}">${g.kondisi}</span></td>
+      <td class="text-muted">${g.tgl}</td>
+      <td><button class="btn btn-ghost btn-sm">🖨️ Cetak</button></td>
+    </tr>
+  `).join('');
+}
+
+function renderSupplier() {
+  const grid = document.getElementById('supplier-grid');
+  grid.innerHTML = supplierData.map(s => `
+    <div class="supplier-card">
+      <div class="flex items-center gap-2 mb-4" style="margin-bottom:10px;">
+        <div class="avatar" style="width:36px;height:36px;font-size:14px;">${s.name.charAt(0)}</div>
+        <div>
+          <div class="supplier-name">${s.name}</div>
+          <div class="text-muted text-sm">${s.kode}</div>
+        </div>
+      </div>
+      <div class="text-sm text-muted" style="margin-bottom:6px;">📦 ${s.kategori} &nbsp;|&nbsp; 👤 ${s.kontak}</div>
+      <div class="text-sm text-muted" style="margin-bottom:10px;">📞 ${s.telp}</div>
+      <div class="flex items-center" style="justify-content:space-between;">
+        <div class="supplier-rating">
+          <span class="stars">${'★'.repeat(Math.floor(s.rating))}${'☆'.repeat(5-Math.floor(s.rating))}</span>
+          <span class="text-muted">${s.rating}</span>
+        </div>
+        <span class="text-muted text-sm">${s.po} PO</span>
+      </div>
+    </div>
+  `).join('');
+}
+
+function renderItem() {
+  const tbody = document.getElementById('item-table');
+  tbody.innerHTML = itemData.map(i => `
+    <tr>
+      <td><span class="po-number">${i.kode}</span></td>
+      <td class="font-bold">${i.nama}</td>
+      <td><span class="tag">${i.kategori}</span></td>
+      <td class="text-muted">${i.satuan}</td>
+      <td class="text-green font-bold">${i.harga}</td>
+      <td class="text-center">${i.stokMin}</td>
+      <td class="text-muted">${i.leadTime}</td>
+      <td>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm">✏️</button>
+          <button class="btn btn-danger btn-sm">🗑</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderInvoice() {
+  const tbody = document.getElementById('invoice-table');
+  tbody.innerHTML = invoiceData.map(i => `
+    <tr>
+      <td><span class="po-number">${i.id}</span></td>
+      <td>${i.supplier}</td>
+      <td class="text-blue">${i.refPO}</td>
+      <td class="font-bold">${i.jumlah}</td>
+      <td class="text-muted">${i.jatuhTempo}</td>
+      <td>${invoiceBadge(i.status)}</td>
+      <td>
+        <div class="flex gap-2">
+          ${i.status!=='Lunas'?`<button class="btn btn-success btn-sm" onclick="bayarInvoice('${i.id}')">💳 Bayar</button>`:''}
+          <button class="btn btn-ghost btn-sm">🖨️</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function renderBudget() {
+  const tbody = document.getElementById('budget-table');
+  tbody.innerHTML = budgetData.map(b => {
+    const pct = Math.round(b.terpakai / b.budget * 100);
+    const over = pct > 100;
+    const color = over ? 'var(--red)' : pct > 80 ? 'var(--orange)' : 'var(--green)';
+    return `
+    <tr>
+      <td class="font-bold">${b.dept}</td>
+      <td>Rp ${(b.budget/1000000).toFixed(1)}jt</td>
+      <td>${over?'<span class="text-red">':''} Rp ${(b.terpakai/1000000).toFixed(1)}jt ${over?'</span>':''}</td>
+      <td class="${over?'text-red':'text-green'}">Rp ${((b.budget-b.terpakai)/1000000).toFixed(1)}jt</td>
+      <td class="${over?'text-red':''}">${pct}%</td>
+      <td style="width:150px;">
+        <div class="progress-bar">
+          <div class="progress-fill" style="width:${Math.min(pct,100)}%;background:${color}"></div>
+        </div>
+        ${over?'<div class="text-sm text-red" style="margin-top:2px;">Over Budget!</div>':''}
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ============== BADGES ==============
+function statusBadge(s) {
+  const map = {
+    'Pending':'badge-pending','Approved':'badge-approved','Rejected':'badge-rejected',
+    'Draft':'badge-draft','Ordered':'badge-ordered','Received':'badge-received'
+  };
+  const dot = {
+    'Pending':'🟡','Approved':'🟢','Rejected':'🔴','Draft':'⚫','Ordered':'🔵','Received':'✅'
+  };
+  return `<span class="badge ${map[s]||''}">${dot[s]||''} ${s}</span>`;
+}
+
+function priorityBadge(p) {
+  const map = { 'Urgent':'badge-rejected','Tinggi':'badge-pending','Normal':'badge-draft' };
+  return `<span class="badge ${map[p]||''}">${p}</span>`;
+}
+
+function invoiceBadge(s) {
+  const map = { 'Lunas':'badge-approved','Belum Bayar':'badge-rejected','Sebagian':'badge-pending' };
+  return `<span class="badge ${map[s]||''}">${s}</span>`;
+}
+
+// ============== MODALS ==============
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+  setTodayDates();
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+function setTodayDates() {
+  const today = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('input[type=date]').forEach(i => { if (!i.value) i.value = today; });
+}
+
+// ============== ACTIONS ==============
+function approvePR(id) {
+  const pr = prData.find(p => p.id === id);
+  if (pr) {
+    pr.status = 'Approved';
+    renderPR();
+    const badge = document.getElementById('pr-badge');
+    const pending = prData.filter(p => p.status === 'Pending').length;
+    badge.textContent = pending;
+    showToast('✅', `${id} berhasil disetujui!`);
+  }
+}
+
+function viewDetail(id) { showToast('👁', `Melihat detail ${id}`); }
+
+function savePR(type) {
+  closeModal('modal-pr');
+  const newId = `PR-2025-00${prData.length+1}`;
+  prData.unshift({
+    id: newId, pemohon:'Ahmad Santoso', dept:'IT', item:'Item Baru',
+    total:'Rp 0', prioritas:'Normal',
+    status: type === 'draft' ? 'Draft' : 'Pending', tgl: new Date().toLocaleDateString('id-ID')
+  });
+  if (document.getElementById('page-pr').classList.contains('active')) renderPR();
+  showToast('📝', type === 'draft' ? `Draft ${newId} disimpan` : `${newId} berhasil disubmit!`);
+}
+
+function savePO() {
+  closeModal('modal-po');
+  const newId = `PO-2025-00${poData.length+1}`;
+  poData.unshift({
+    id:newId, supplier:'PT. Maju Bersama', refPR:'PR-2025-001',
+    item:'Item Baru', total:'Rp 0', delivery:'-', status:'Draft', progress:0
+  });
+  if (document.getElementById('page-po').classList.contains('active')) renderPO();
+  showToast('🛒', `${newId} berhasil dibuat!`);
+}
+
+function saveSupplier() {
+  closeModal('modal-supplier');
+  showToast('🏭', 'Supplier baru berhasil ditambahkan!');
+  supplierData.push({ name:'Supplier Baru', kode:`SUP-00${supplierData.length+1}`, kategori:'Lainnya', kontak:'-', telp:'-', rating:0, po:0 });
+  if (document.getElementById('page-supplier').classList.contains('active')) renderSupplier();
+}
+
+function saveRFQ() {
+  closeModal('modal-rfq');
+  showToast('📋', 'RFQ berhasil dikirim ke supplier!');
+  rfqData.unshift({ id:`RFQ-2025-00${rfqData.length+1}`, supplier:'PT. Maju Bersama', item:'Item Baru', qty:1, harga:'-', deadline:'-', status:'Pending' });
+  if (document.getElementById('page-rfq').classList.contains('active')) renderRFQ();
+}
+
+function saveItem() {
+  closeModal('modal-item');
+  showToast('🗂️', 'Item katalog berhasil ditambahkan!');
+}
+
+function saveGRN() {
+  closeModal('modal-receiving');
+  showToast('📦', 'Penerimaan barang berhasil diinput!');
+}
+
+function saveInvoice() {
+  closeModal('modal-invoice');
+  showToast('🧾', 'Invoice berhasil disimpan!');
+}
+
+function bayarInvoice(id) {
+  const inv = invoiceData.find(i => i.id === id);
+  if (inv) { inv.status = 'Lunas'; renderInvoice(); showToast('💳', `Pembayaran ${id} berhasil diproses!`); }
+}
+
+// ============== ITEMS IN FORM ==============
+function addPRItem() {
+  const tbody = document.getElementById('pr-items');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="form-input" placeholder="Nama item..." oninput="calcPRTotal()"></td>
+    <td><input type="number" class="form-input" value="1" min="1" style="width:60px" oninput="calcPRTotal()"></td>
+    <td><select class="form-input" style="width:80px"><option>Unit</option><option>Pcs</option><option>Box</option><option>Set</option></select></td>
+    <td><input type="number" class="form-input" placeholder="0" oninput="calcPRTotal()"></td>
+    <td class="item-total text-green font-bold">Rp 0</td>
+    <td><button class="btn btn-danger btn-sm" onclick="removePRItem(this)">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function removePRItem(btn) {
+  btn.closest('tr').remove();
+  calcPRTotal();
+}
+
+function calcPRTotal() {
+  let grand = 0;
+  document.querySelectorAll('#pr-items tr').forEach(tr => {
+    const qty = parseFloat(tr.cells[1]?.querySelector('input')?.value) || 0;
+    const price = parseFloat(tr.cells[3]?.querySelector('input')?.value) || 0;
+    const total = qty * price;
+    grand += total;
+    if (tr.cells[4]) tr.cells[4].textContent = 'Rp ' + total.toLocaleString('id-ID');
+  });
+  document.getElementById('pr-grand-total').textContent = 'Rp ' + grand.toLocaleString('id-ID');
+}
+
+function addPOItem() {
+  const tbody = document.getElementById('po-items');
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><input class="form-input" placeholder="Nama item..."></td>
+    <td><input type="number" class="form-input" value="1" style="width:60px"></td>
+    <td><select class="form-input" style="width:80px"><option>Pcs</option><option>Unit</option><option>Box</option></select></td>
+    <td><input type="number" class="form-input" placeholder="0" oninput="calcPOTotal()"></td>
+    <td><input type="number" class="form-input" placeholder="0%" style="width:70px" oninput="calcPOTotal()"></td>
+    <td class="text-green font-bold">Rp 0</td>
+    <td><button class="btn btn-danger btn-sm" onclick="this.closest('tr').remove();calcPOTotal()">✕</button></td>
+  `;
+  tbody.appendChild(tr);
+}
+
+function calcPOTotal() {
+  let sub = 0;
+  document.querySelectorAll('#po-items tr').forEach(tr => {
+    const qty = parseFloat(tr.cells[1]?.querySelector('input')?.value) || 0;
+    const price = parseFloat(tr.cells[3]?.querySelector('input')?.value) || 0;
+    const disc = parseFloat(tr.cells[4]?.querySelector('input')?.value) || 0;
+    const total = qty * price * (1 - disc/100);
+    sub += total;
+    if (tr.cells[5]) tr.cells[5].textContent = 'Rp ' + total.toLocaleString('id-ID');
+  });
+  const tax = sub * 0.11;
+  document.getElementById('po-subtotal').textContent = 'Rp ' + sub.toLocaleString('id-ID');
+  document.getElementById('po-tax').textContent = 'Rp ' + tax.toLocaleString('id-ID');
+  document.getElementById('po-grand-total').textContent = 'Rp ' + (sub+tax).toLocaleString('id-ID');
+}
+
+// ============== FILTER / SEARCH ==============
+function filterTable(tableId, query) {
+  const rows = document.querySelectorAll(`#${tableId} tr`);
+  rows.forEach(row => {
+    row.style.display = row.textContent.toLowerCase().includes(query.toLowerCase()) ? '' : 'none';
+  });
+}
+
+function filterByStatus(tableId, status) {
+  const rows = document.querySelectorAll(`#${tableId} tr`);
+  rows.forEach(row => {
+    row.style.display = (!status || row.textContent.includes(status)) ? '' : 'none';
+  });
+}
+
+// ============== TOAST ==============
+function showToast(icon, text, duration = 3000) {
+  const container = document.getElementById('toast-container');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-text">${text}</span>`;
+  container.appendChild(toast);
+  requestAnimationFrame(() => { requestAnimationFrame(() => toast.classList.add('show')); });
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 400);
+  }, duration);
+}
+
+// ============== INIT ==============
+window.addEventListener('DOMContentLoaded', () => {
+  renderPage('dashboard');
+  setTodayDates();
+  setTimeout(() => showToast('👋', 'Selamat datang, Abi Kamal!'), 800);
+});
+</script>
 </body>
 </html>
